@@ -4,8 +4,9 @@
 
 <script>
 export default {
-  name: 'App'
-}
+  name: "App",
+  mounted() {}
+};
 </script>
 
 <style src="./assets/styles.css" lang="css"></style>

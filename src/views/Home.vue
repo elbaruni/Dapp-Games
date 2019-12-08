@@ -1,40 +1,30 @@
 <template>
   <div class="center">
-    <landing v-if="! userSession.isUserSignedIn()"></landing>
-    <dashboard v-if="user" :user="user"></dashboard>
-
+    <landing v-if="!signedIn"></landing>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Landing from '@/components/Landing.vue'
-import Dashboard from '@/components/Dashboard.vue'
-import { Person } from 'blockstack'
-import { userSession } from '../userSession'
+import Landing from "@/components/Landing.vue";
 
 export default {
-  name: 'Home',
-  components: { Landing, Dashboard },
-  created () {
-    this.userSession = userSession
-  },
-  mounted () {
-    if (userSession.isUserSignedIn()) {
-      this.userData = userSession.loadUserData()
-      this.user = new Person(this.userData.profile)
-      this.user.username = this.userData.username
-    } else if (userSession.isSignInPending()) {
-      userSession.handlePendingSignIn()
-        .then((userData) => {
-          window.location = window.location.origin
-        })
+  name: "Home",
+  components: { Landing },
+  created() {},
+  mounted() {
+    if (this.signedIn === true) {
+      this.$router.push("/games");
     }
   },
-  data () {
-    return {
-      userSession: null,
-      user: null
+
+  computed: {
+    user() {
+      return this.$store.getters.getUser;
+    },
+    signedIn() {
+      return this.$store.getters.isUserSignedIn;
     }
   }
-}
+};
 </script>
