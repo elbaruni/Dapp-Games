@@ -5,5 +5,8 @@ export default {
   },
   getUser(state) {
     return state.user;
+  },
+  flappBirdScore(state) {
+    return state.flappyBird.score;
   }
 };

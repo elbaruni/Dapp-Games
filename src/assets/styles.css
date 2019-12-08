@@ -122,3 +122,9 @@ body {
 .content {
   margin-top: 20px;
 }
+
+.list-group-item.disabled,
+.list-group-item:disabled {
+  color: #6c757d;
+  pointer-events: none;
+}

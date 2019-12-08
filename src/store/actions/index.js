@@ -22,5 +22,8 @@ export default {
       profile.update();
       await profile.save();
     }
+  },
+  async SetFlappyBirdScore({ commit }, payload) {
+    commit("SetFlappyBirdScore", payload);
   }
 };

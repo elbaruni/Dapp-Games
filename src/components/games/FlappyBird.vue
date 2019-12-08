@@ -7,24 +7,21 @@
             <b-list-group-item
               @click.prevent="level = 1"
               :disabled="disable_level"
-              >Easy</b-list-group-item
-            >
+              variant="success"
+              :active="level == 1"
+            >Easy</b-list-group-item>
             <b-list-group-item
               @click.prevent="level = 2"
               :disabled="disable_level"
-              >Normal</b-list-group-item
-            >
+              variant="primary"
+              :active="level == 2"
+            >Normal</b-list-group-item>
             <b-list-group-item
               @click.prevent="level = 3"
+              variant="danger"
               :disabled="disable_level"
-              >Hard</b-list-group-item
-            >
-            <b-list-group-item :disabled="disable_level">{{
-              level
-            }}</b-list-group-item>
-            <b-list-group-item :disabled="disable_level">{{
-              gap
-            }}</b-list-group-item>
+              :active="level == 3"
+            >Hard</b-list-group-item>
           </b-list-group>
         </b-col>
         <b-col>
@@ -75,13 +72,29 @@ export default {
       context: null,
       frames: 0,
       DEGREE: Math.PI / 180,
-      Score: parseInt(localStorage.getItem("best")) || 0,
+
       level: 1,
       disable_level: false,
-      gameState: 0
+      gameState: 0,
+      bird: {
+        x: 50,
+        y: 240,
+        w: 34,
+        h: 26,
+        radius: 12,
+        frame: 0,
+        gravity: 0.25,
+        jump: 4.6,
+        speed: 0,
+        rotation: 0
+      },
+      requestAnimationFrameid: undefined
     };
   },
   computed: {
+    Score() {
+      return parseInt(this.$store.getters.flappBirdScore) || 0;
+    },
     gap() {
       let Gap;
 
@@ -106,47 +119,20 @@ export default {
       }
     }
   },
+  created() {
+    state.current = 0;
+  },
+  destroyed() {
+    cancelAnimationFrame(this.requestAnimationFrameid);
+    this.requestAnimationFrameid = undefined;
+  },
   mounted() {
     var vm = this;
     vm.canvas = vm.$refs.canvas;
     vm.context = vm.canvas.getContext("2d");
     let Sprite = new Image();
 
-    // CONTROL THE GAME
-    vm.canvas.addEventListener("click", function(evt) {
-      switch (state.current) {
-        case state.getReady:
-          state.current = state.game;
-          SWOOSHING.play();
-          break;
-        case state.game:
-          if (bird.y - bird.radius <= 0) return;
-
-          bird.flap();
-          FLAP.play();
-          break;
-        case state.over:
-          let rect = vm.canvas.getBoundingClientRect();
-          let clickX = evt.clientX - rect.left;
-          let clickY = evt.clientY - rect.top;
-
-          // CHECK IF WE CLICK ON THE START BUTTON
-          if (
-            clickX >= startBtn.x &&
-            clickX <= startBtn.x + startBtn.w &&
-            clickY >= startBtn.y &&
-            clickY <= startBtn.y + startBtn.h
-          ) {
-            pipes.reset();
-            bird.speedReset();
-            score.reset();
-            state.current = state.getReady;
-          }
-          break;
-      }
-    });
-
-    // Medal gold
+    state.current = 0;
     const md_gl = {
       sX: 312,
       sY: 159,
@@ -333,6 +319,7 @@ export default {
       }
     };
     // Bird
+
     const bird = {
       animation: [
         { sX: 276, sY: 112 },
@@ -340,19 +327,19 @@ export default {
         { sX: 276, sY: 164 },
         { sX: 276, sY: 139 }
       ],
-      x: 50,
-      y: 240,
-      w: 34,
-      h: 26,
+      x: vm.bird.x,
+      y: vm.bird.y,
+      w: vm.bird.w,
+      h: vm.bird.h,
 
-      radius: 12,
+      radius: vm.bird.radius,
 
-      frame: 0,
+      frame: vm.bird.frame,
 
-      gravity: 0.25,
-      jump: 4.6,
-      speed: 0,
-      rotation: 0,
+      gravity: vm.bird.gravity,
+      jump: vm.bird.jump,
+      speed: vm.bird.speed,
+      rotation: vm.bird.rotation,
 
       draw: function() {
         let bird = this.animation[this.frame];
@@ -414,6 +401,19 @@ export default {
       },
       speedReset: function() {
         this.speed = 0;
+        this.x = vm.bird.x;
+        this.y = vm.bird.y;
+        this.w = vm.bird.w;
+        this.h = vm.bird.h;
+
+        this.radius = vm.bird.radius;
+
+        this.frame = vm.bird.frame;
+
+        this.gravity = vm.bird.gravity;
+        this.jump = vm.bird.jump;
+        this.speed = vm.bird.speed;
+        this.rotation = vm.bird.rotation;
       }
     };
     // GET READY MESSAGE
@@ -626,8 +626,11 @@ export default {
             score.value += 1;
             SCORE_S.play();
             score.best = Math.max(score.value, score.best);
-            localStorage.setItem("best", score.best);
-            vm.Score = score.best;
+            //to use acctions/imutation to set new score
+            // localStorage.setItem("best", score.best);
+            // vm.Score = score.best;
+
+            vm.setScore(score.best);
           }
         }
       },
@@ -639,7 +642,7 @@ export default {
 
     // SCORE
     const score = {
-      best: parseInt(localStorage.getItem("best")) || 0,
+      best: vm.Score || 0,
       value: 0,
 
       draw: function() {
@@ -681,6 +684,42 @@ export default {
       score.draw();
     }
 
+    // CONTROL THE GAME
+    vm.canvas.addEventListener("click", function(evt) {
+      switch (state.current) {
+        case state.getReady:
+          state.current = state.game;
+          SWOOSHING.play();
+          break;
+        case state.game:
+          if (bird.y - bird.radius <= 0) return;
+
+          bird.flap();
+          FLAP.play();
+          break;
+        case state.over:
+          let rect = vm.canvas.getBoundingClientRect();
+          let clickX = evt.clientX - rect.left;
+          let clickY = evt.clientY - rect.top;
+
+          // CHECK IF WE CLICK ON THE START BUTTON
+          if (
+            clickX >= startBtn.x &&
+            clickX <= startBtn.x + startBtn.w &&
+            clickY >= startBtn.y &&
+            clickY <= startBtn.y + startBtn.h
+          ) {
+            pipes.reset();
+            bird.speedReset();
+            score.reset();
+            state.current = state.getReady;
+          }
+          break;
+      }
+    });
+
+    // Medal gold
+
     // UPDATE
     function update() {
       bird.update();
@@ -693,12 +732,14 @@ export default {
       update();
       draw();
       vm.frames++;
-
-      requestAnimationFrame(loop);
+      vm.requestAnimationFrameid = undefined;
+      if (!vm.requestAnimationFrameid) {
+        vm.requestAnimationFrameid = requestAnimationFrame(loop);
+      }
     }
 
     loop();
-    console.log(bird);
+
     Sprite.src = sprite;
   },
   methods: {
@@ -706,6 +747,9 @@ export default {
       var vm = this;
       vm.canvas.width = vm.canvas.width;
       vm.points.length = 0; // reset points array
+    },
+    setScore(score) {
+      this.$store.dispatch("SetFlappyBirdScore", score);
     }
   }
 };

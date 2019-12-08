@@ -9,7 +9,10 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    user: null
+    user: null,
+    flappyBird: {
+      score: 7
+    }
   },
   getters,
   mutations,
