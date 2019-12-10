@@ -7,6 +7,11 @@ export default {
     return state.user;
   },
   flappBirdScore(state) {
+    console.log("getter called", state.flappyBird.score);
     return state.flappyBird.score;
+  },
+
+  flappBirdScoreLevel: (state, getters) => id => {
+    return state.flappyBird.score[id];
   }
 };

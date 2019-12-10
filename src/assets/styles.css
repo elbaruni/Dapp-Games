@@ -128,3 +128,7 @@ body {
   color: #6c757d;
   pointer-events: none;
 }
+
+.chess-board {
+  width: 500px;
+}

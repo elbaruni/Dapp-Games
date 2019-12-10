@@ -11,13 +11,9 @@ export class FlappyBird extends Model {
   static className = "FlappyBird";
   static schema = {
     Blockstack_id: { type: String, decrypted: true },
-    easy: { type: Number, decrypted: true },
-    normal: { type: Number, decrypted: true },
-    hard: { type: Number, decrypted: true }
+    Scores: { type: Array, decrypted: true }
   };
   static defaults = {
-    easy: 0,
-    normal: 0,
-    hard: 0
+    Scores: [0, 0, 0]
   };
 }

@@ -1,28 +1,45 @@
 <template>
   <div>
-    <b-container>
-      <b-row>
+    <b-container fluid>
+      <p>{{level}} {{Score}}</p>
+      <b-row no-gutters>
         <b-col>
-          <b-list-group>
-            <b-list-group-item
-              @click.prevent="level = 1"
-              :disabled="disable_level"
-              variant="success"
-              :active="level == 1"
-            >Easy</b-list-group-item>
-            <b-list-group-item
-              @click.prevent="level = 2"
-              :disabled="disable_level"
-              variant="primary"
-              :active="level == 2"
-            >Normal</b-list-group-item>
-            <b-list-group-item
-              @click.prevent="level = 3"
-              variant="danger"
-              :disabled="disable_level"
-              :active="level == 3"
-            >Hard</b-list-group-item>
-          </b-list-group>
+          <b-container fluid>
+            <b-row no-gutters>
+              <b-col md="12">
+                <b-form-group no-gutters>
+                  <b-form-radio-group buttons v-model="level">
+                    <b-form-radio
+                      v-model="level"
+                      name="some-radios"
+                      :disabled="disable_level"
+                      button-variant="success"
+                      value="0"
+                    >Easy</b-form-radio>
+                    <b-form-radio
+                      v-model="level"
+                      name="some-radios"
+                      :disabled="disable_level"
+                      button-variant="primary"
+                      value="1"
+                    >Normal</b-form-radio>
+                    <b-form-radio
+                      v-model="level"
+                      name="some-radios"
+                      :disabled="disable_level"
+                      button-variant="danger"
+                      value="2"
+                    >Hard</b-form-radio>
+                  </b-form-radio-group>
+                </b-form-group>
+                <b-list-group no-gutters>
+                  <b-list-group-item>{{`Easy Mode Best Score ${ScoreEasy}`}}</b-list-group-item>
+                  <b-list-group-item>{{`Normal Mode Best Score ${ScoreNormal}`}}</b-list-group-item>
+                  <b-list-group-item>{{`Hard Mode Best Score ${ScoreHard}`}}</b-list-group-item>
+                </b-list-group>
+              </b-col>
+            </b-row>
+          </b-container>
         </b-col>
         <b-col>
           <canvas ref="canvas" id="canvas" width="420" height="600"></canvas>
@@ -72,10 +89,16 @@ export default {
       context: null,
       frames: 0,
       DEGREE: Math.PI / 180,
-
-      level: 1,
+      currentScore: 0,
+      level: "1",
       disable_level: false,
       gameState: 0,
+      selected: "1",
+      options: [
+        { text: "Radio 1", value: "1" },
+        { text: "Radio 3", value: "2" },
+        { text: "Radio 4", value: "3" }
+      ],
       bird: {
         x: 50,
         y: 240,
@@ -93,23 +116,39 @@ export default {
   },
   computed: {
     Score() {
-      return parseInt(this.$store.getters.flappBirdScore) || 0;
+      return parseInt(
+        this.$store.getters.flappBirdScoreLevel(parseInt(this.level)) || 0
+      );
+    },
+    ScoreEasy() {
+      return parseInt(this.$store.getters.flappBirdScore[0] || 0);
+    },
+    ScoreNormal() {
+      return parseInt(this.$store.getters.flappBirdScore[1] || 0);
+    },
+    ScoreHard() {
+      return parseInt(this.$store.getters.flappBirdScore[2] || 0);
+    },
+    user() {
+      //to add computed  avatar and name
+
+      return this.$store.getters.getUser;
     },
     gap() {
       let Gap;
 
-      switch (this.level) {
-        case 1:
+      switch (parseInt(this.level)) {
+        case 0:
           Gap = 140;
 
           return 140;
           break;
-        case 2:
+        case 1:
           Gap = 105;
 
           return 105;
           break;
-        case 3:
+        case 2:
           Gap = 90;
 
           return 90;
@@ -387,6 +426,7 @@ export default {
             if (state.current == state.game) {
               state.current = state.over;
               DIE.play();
+              vm.setScore(score.value);
             }
           }
 
@@ -450,6 +490,7 @@ export default {
       y: 90,
 
       draw: function() {
+        //to return here
         if (state.current == state.over) {
           if (vm.Score < 10) {
             //no medal
@@ -522,6 +563,7 @@ export default {
             md_pl.draw();
           }
         }
+        //to return here
       }
     };
 
@@ -605,6 +647,7 @@ export default {
           ) {
             state.current = state.over;
             HIT.play();
+            vm.setScore(score.value);
           }
           // BOTTOM PIPE
           if (
@@ -615,6 +658,8 @@ export default {
           ) {
             state.current = state.over;
             HIT.play();
+            console.log("here0");
+            vm.setScore(score.value);
           }
 
           // MOVE THE PIPES TO THE LEFT
@@ -625,12 +670,10 @@ export default {
             this.position.shift();
             score.value += 1;
             SCORE_S.play();
-            score.best = Math.max(score.value, score.best);
+            // score.best = Math.max(score.value, score.best);
             //to use acctions/imutation to set new score
             // localStorage.setItem("best", score.best);
             // vm.Score = score.best;
-
-            vm.setScore(score.best);
           }
         }
       },
@@ -642,7 +685,6 @@ export default {
 
     // SCORE
     const score = {
-      best: vm.Score || 0,
       value: 0,
 
       draw: function() {
@@ -661,8 +703,9 @@ export default {
           vm.context.fillText(this.value, 225, 186);
           vm.context.strokeText(this.value, 225, 186);
           // BEST SCORE
-          vm.context.fillText(this.best, 225, 228);
-          vm.context.strokeText(this.best, 225, 228);
+          //console.log("waaaaaaaaaaaaak", vm.Score[parseInt(vm.level)]);
+          vm.context.fillText(vm.Score, 225, 228);
+          vm.context.strokeText(vm.Score, 225, 228);
           vm.disable_level = false;
         }
       },
@@ -748,8 +791,18 @@ export default {
       vm.canvas.width = vm.canvas.width;
       vm.points.length = 0; // reset points array
     },
-    setScore(score) {
-      this.$store.dispatch("SetFlappyBirdScore", score);
+    async setScore(_score) {
+      console.log("here1", this.level, this.Score);
+      console.log(_score);
+      //_score = Math.max(_score, this.Score);
+      console.log(_score);
+      if (_score > this.Score) {
+        await this.$store.dispatch("SetFlappyBirdScore", {
+          score: _score,
+          Blockstack_id: this.user.username,
+          level: this.level
+        });
+      }
     }
   }
 };

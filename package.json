@@ -29,6 +29,7 @@
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.1.0",
     "core-js": "^2.6.5",
+    "jquery": "^3.4.1",
     "radiks": "^0.2.1",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",

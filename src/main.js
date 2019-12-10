@@ -11,6 +11,12 @@ import BootstrapVue from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "./assets/styles.css";
+import "./assets/css/chessboard-1.0.0.css";
+import "./assets/js/chessboard-1.0.0";
+
+console.log(window.ChessBoard);
+//window.Chessboard = require("./assets/js/chessboard-1.0.0");
+//console.log("wundow.chessboard2", window.Chessboard);
 window.blockstack = require("blockstack");
 window.axios = require("axios");
 Vue.use(BootstrapVue);
@@ -24,7 +30,7 @@ new Vue({
   router,
   store,
   render: h => h(App),
-  created() {
+  async created() {
     const { userSession } = getConfig();
 
     if (userSession.isUserSignedIn()) {
@@ -39,6 +45,8 @@ new Vue({
         type: "setUser",
         user
       });
+
+      await this.$store.dispatch("getFlappyBirdScore", user.username);
     } else if (userSession.isSignInPending()) {
       //////////////
       userSession.handlePendingSignIn().then(async userData => {

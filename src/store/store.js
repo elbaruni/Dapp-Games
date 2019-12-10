@@ -11,7 +11,7 @@ export const store = new Vuex.Store({
   state: {
     user: null,
     flappyBird: {
-      score: 7
+      score: [0, 0, 0]
     }
   },
   getters,
