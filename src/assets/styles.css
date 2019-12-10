@@ -132,3 +132,14 @@ body {
 .chess-board {
   width: 500px;
 }
+.chess-avatar {
+  width: 40px;
+  height: 40px;
+}
+.form-group {
+  margin-bottom: 0.3rem !important;
+  width: 420px;
+}
+.mode {
+  width: 33%;
+}

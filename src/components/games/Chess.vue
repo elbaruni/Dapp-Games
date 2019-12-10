@@ -2,17 +2,27 @@
   <div>
     <b-container>
       <b-row>
-        <b-col> </b-col>
+        <b-col></b-col>
         <b-col>
           <h2 class="text-white">Chess</h2>
-          <div id="board" class="chess-board"></div
-        ></b-col>
+          <b-form-input id="input-1" v-model="orientation"></b-form-input>
+
+          <div class="clearfix mb-2 mt-2">
+            <b-img
+              left
+              class="chess-avatar"
+              :src="'https://s3.amazonaws.com/onename/avatar-placeholder.png'"
+            ></b-img>
+          </div>
+          <div id="board" class="chess-board"></div>
+        </b-col>
         <b-col></b-col>
       </b-row>
     </b-container>
   </div>
 </template>
 <script>
+//const io = require("socket.io-client");
 export default {
   name: "Chess",
   created() {
@@ -20,6 +30,7 @@ export default {
     if (this.game == null) {
       this.game = new window.Chess();
     }
+    //this.socket = io("http://localhost:3000");
   },
   computed: {
     position() {
@@ -28,13 +39,17 @@ export default {
   },
   mounted() {
     console.log("mounted");
+    /// this.socket.on("hello", data => {
+    //  console.log("data....", data);
+    // });
     const config = {
       draggable: true,
+      showNotation: true,
       position: "start",
       onDragStart: this.onDragStart,
       onDrop: this.onDrop,
-      onSnapEnd: this.onSnapEnd,
-      showNotation: true
+      onSnapEnd: this.onSnapEnd
+
       // onDragStart: this.onDragStart.bind(this),
       // onDrop: this.onDrop.bind(this),
       // onSnapEnd: this.onSnapEnd.bind(this)
@@ -57,11 +72,13 @@ export default {
       // do not pick up pieces if the game is over
 
       if (this.game.game_over()) return false;
-
+      //(game.turn() !== playerColor[0])
+      console.log(this.game.turn(), this.orientation[0]);
       // only pick up pieces for the side to move
       if (
         (this.game.turn() === "w" && piece.search(/^b/) !== -1) ||
-        (this.game.turn() === "b" && piece.search(/^w/) !== -1)
+        (this.game.turn() === "b" && piece.search(/^w/) !== -1) ||
+        this.game.turn() !== this.orientation[0]
       ) {
         return false;
       }
@@ -131,7 +148,9 @@ export default {
       rook: "./img/chesspieces/wikipedia/wR.png",
       bishop: "./img/chesspieces/wikipedia/wB.png",
       knight: "./img/chesspieces/wikipedia/wN.png",
-      promotion: "q"
+      promotion: "q",
+      clock: 1000 * 60 * 3,
+      socket: {}
     };
   }
 };

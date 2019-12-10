@@ -1,50 +1,63 @@
 <template>
   <div>
     <b-container fluid>
-      <p>{{level}} {{Score}}</p>
       <b-row no-gutters>
+        <b-col></b-col>
+        <b-col>
+          <b-form-group no-gutters>
+            <b-form-radio-group buttons v-model="level" class="form-group">
+              <b-form-radio
+                v-model="level"
+                name="some-radios"
+                :disabled="disable_level"
+                button-variant="success"
+                value="0"
+                class="mode"
+              >Easy</b-form-radio>
+              <b-form-radio
+                v-model="level"
+                name="some-radios"
+                :disabled="disable_level"
+                button-variant="primary"
+                value="1"
+                class="mode"
+              >Normal</b-form-radio>
+              <b-form-radio
+                v-model="level"
+                name="some-radios"
+                :disabled="disable_level"
+                button-variant="danger"
+                value="2"
+              >Hard</b-form-radio>
+            </b-form-radio-group>
+            <canvas ref="canvas" id="canvas" width="420" height="600"></canvas>
+          </b-form-group>
+        </b-col>
         <b-col>
           <b-container fluid>
             <b-row no-gutters>
               <b-col md="12">
-                <b-form-group no-gutters>
-                  <b-form-radio-group buttons v-model="level">
-                    <b-form-radio
-                      v-model="level"
-                      name="some-radios"
-                      :disabled="disable_level"
-                      button-variant="success"
-                      value="0"
-                    >Easy</b-form-radio>
-                    <b-form-radio
-                      v-model="level"
-                      name="some-radios"
-                      :disabled="disable_level"
-                      button-variant="primary"
-                      value="1"
-                    >Normal</b-form-radio>
-                    <b-form-radio
-                      v-model="level"
-                      name="some-radios"
-                      :disabled="disable_level"
-                      button-variant="danger"
-                      value="2"
-                    >Hard</b-form-radio>
-                  </b-form-radio-group>
-                </b-form-group>
                 <b-list-group no-gutters>
-                  <b-list-group-item>{{`Easy Mode Best Score ${ScoreEasy}`}}</b-list-group-item>
-                  <b-list-group-item>{{`Normal Mode Best Score ${ScoreNormal}`}}</b-list-group-item>
-                  <b-list-group-item>{{`Hard Mode Best Score ${ScoreHard}`}}</b-list-group-item>
+                  <b-list-group-item>
+                    {{
+                    `Easy Mode Best Score ${ScoreEasy}`
+                    }}
+                  </b-list-group-item>
+                  <b-list-group-item>
+                    {{
+                    `Normal Mode Best Score ${ScoreNormal}`
+                    }}
+                  </b-list-group-item>
+                  <b-list-group-item>
+                    {{
+                    `Hard Mode Best Score ${ScoreHard}`
+                    }}
+                  </b-list-group-item>
                 </b-list-group>
               </b-col>
             </b-row>
           </b-container>
         </b-col>
-        <b-col>
-          <canvas ref="canvas" id="canvas" width="420" height="600"></canvas>
-        </b-col>
-        <b-col></b-col>
       </b-row>
     </b-container>
   </div>
