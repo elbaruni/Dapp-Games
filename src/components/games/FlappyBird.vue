@@ -13,6 +13,7 @@
                 button-variant="success"
                 value="0"
                 class="mode"
+                :class="{easy_class :easy_class}"
               >Easy</b-form-radio>
               <b-form-radio
                 v-model="level"
@@ -21,12 +22,15 @@
                 button-variant="primary"
                 value="1"
                 class="mode"
+                :class="{normal_class :normal_class}"
               >Normal</b-form-radio>
               <b-form-radio
                 v-model="level"
                 name="some-radios"
                 :disabled="disable_level"
                 button-variant="danger"
+                class="mode"
+                :class="{hard_class :hard_class}"
                 value="2"
               >Hard</b-form-radio>
             </b-form-radio-group>
@@ -38,19 +42,20 @@
             <b-row no-gutters>
               <b-col md="12">
                 <b-list-group no-gutters>
+                  <h3 aria-disabled>Best Score</h3>
                   <b-list-group-item>
                     {{
-                    `Easy Mode Best Score ${ScoreEasy}`
+                    `Easy ${ScoreEasy}`
                     }}
                   </b-list-group-item>
                   <b-list-group-item>
                     {{
-                    `Normal Mode Best Score ${ScoreNormal}`
+                    `Normal ${ScoreNormal}`
                     }}
                   </b-list-group-item>
                   <b-list-group-item>
                     {{
-                    `Hard Mode Best Score ${ScoreHard}`
+                    `Hard ${ScoreHard}`
                     }}
                   </b-list-group-item>
                 </b-list-group>
@@ -128,6 +133,15 @@ export default {
     };
   },
   computed: {
+    easy_class() {
+      return parseInt(this.level) === 0;
+    },
+    normal_class() {
+      return parseInt(this.level) === 1;
+    },
+    hard_class() {
+      return parseInt(this.level) === 2;
+    },
     Score() {
       return parseInt(
         this.$store.getters.flappBirdScoreLevel(parseInt(this.level)) || 0
@@ -147,27 +161,43 @@ export default {
 
       return this.$store.getters.getUser;
     },
+
+    leveltext() {
+      switch (parseInt(this.level)) {
+        case 0:
+          return "Easy :";
+          break;
+        case 1:
+          return "Normal :";
+          break;
+        case 2:
+          return "Hard :";
+          break;
+        default:
+          return "Normal :";
+      }
+    },
     gap() {
       let Gap;
 
       switch (parseInt(this.level)) {
         case 0:
-          Gap = 140;
+          Gap = 132;
 
-          return 140;
+          return 132;
           break;
         case 1:
-          Gap = 105;
+          Gap = 98;
 
-          return 105;
+          return 98;
           break;
         case 2:
-          Gap = 90;
+          Gap = 85;
 
-          return 90;
+          return 85;
           break;
         default:
-          Gap = 105;
+          Gap = 98;
       }
     }
   },
@@ -439,6 +469,7 @@ export default {
             if (state.current == state.game) {
               state.current = state.over;
               DIE.play();
+              console.log("game over  ", score.value);
               vm.setScore(score.value);
             }
           }
@@ -671,7 +702,7 @@ export default {
           ) {
             state.current = state.over;
             HIT.play();
-            console.log("here0");
+
             vm.setScore(score.value);
           }
 
@@ -707,18 +738,27 @@ export default {
         if (state.current == state.game) {
           vm.context.lineWidth = 2;
           vm.context.font = "35px Teko";
-          vm.context.fillText(this.value, vm.canvas.width / 2, 50);
-          vm.context.strokeText(this.value, vm.canvas.width / 2, 50);
+          vm.context.fillText(
+            vm.leveltext + this.value,
+            vm.canvas.width / 2 - 120,
+            50
+          );
+          vm.context.strokeText(
+            vm.leveltext + this.value,
+            vm.canvas.width / 2 - 120,
+            50
+          );
+
           vm.disable_level = true;
         } else if (state.current == state.over) {
           // SCORE VALUE
           vm.context.font = "25px Teko";
-          vm.context.fillText(this.value, 225, 186);
-          vm.context.strokeText(this.value, 225, 186);
+          vm.context.fillText(this.value, 225, 165);
+          vm.context.strokeText(this.value, 225, 166);
           // BEST SCORE
-          //console.log("waaaaaaaaaaaaak", vm.Score[parseInt(vm.level)]);
-          vm.context.fillText(vm.Score, 225, 228);
-          vm.context.strokeText(vm.Score, 225, 228);
+
+          vm.context.fillText(vm.Score, 225, 208);
+          vm.context.strokeText(vm.Score, 225, 208);
           vm.disable_level = false;
         }
       },
@@ -805,10 +845,8 @@ export default {
       vm.points.length = 0; // reset points array
     },
     async setScore(_score) {
-      console.log("here1", this.level, this.Score);
-      console.log(_score);
       //_score = Math.max(_score, this.Score);
-      console.log(_score);
+
       if (_score > this.Score) {
         await this.$store.dispatch("SetFlappyBirdScore", {
           score: _score,

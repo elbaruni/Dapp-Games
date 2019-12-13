@@ -14,10 +14,6 @@ import "./assets/styles.css";
 import "./assets/css/chessboard-1.0.0.css";
 import "./assets/js/chessboard-1.0.0";
 
-console.log(window.ChessBoard);
-//window.Chessboard = require("./assets/js/chessboard-1.0.0");
-//console.log("wundow.chessboard2", window.Chessboard);
-window.blockstack = require("blockstack");
 window.axios = require("axios");
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false;

@@ -14,34 +14,73 @@
               :src="'https://s3.amazonaws.com/onename/avatar-placeholder.png'"
             ></b-img>
           </div>
+          <div class="turn-color" :class="game.turn()"></div>
           <div id="board" class="chess-board"></div>
         </b-col>
-        <b-col></b-col>
+        <b-col>
+          <b-button @click="register">New Game</b-button>
+          <b-button @click="move">valid Move</b-button>
+          <b-button @click="moveinvalid">invalidvalid Move</b-button>
+
+          <b-list-group class="mt-3">
+            <b-list-group-item v-for="player in onlinePlayers" :key="player.socketID">{{player.id}}</b-list-group-item>
+          </b-list-group>
+        </b-col>
       </b-row>
     </b-container>
   </div>
 </template>
 <script>
-//const io = require("socket.io-client");
+import io from "socket.io-client";
 export default {
   name: "Chess",
+  beforeDestroy() {
+    this.socket.disconnect();
+  },
   created() {
-    console.log("created");
     if (this.game == null) {
       this.game = new window.Chess();
     }
-    //this.socket = io("http://localhost:3000");
+    console.log(this.user.username);
+    this.socket = io("http://localhost:3000");
   },
   computed: {
+    onlinePlayers() {
+      return this.players.filter(player => {
+        return player.id != this.user.username;
+      });
+    },
     position() {
       return;
+    },
+    user() {
+      //to add computed  avatar and name
+
+      return this.$store.getters.getUser;
+    },
+    elo() {
+      return 1000;
     }
   },
   mounted() {
-    console.log("mounted");
-    /// this.socket.on("hello", data => {
-    //  console.log("data....", data);
-    // });
+    this.socket.on("players", data => {
+      console.log("recieved");
+      this.players = data.players;
+      console.log("...1", this.players);
+    });
+    this.socket.on("postion", data => {
+      console.log("post", data.game);
+      if (data.game.blackPlayer === this.user.username) {
+        this.orientation = "black";
+        this.board.orientation(this.orientation);
+      } else {
+        this.orientation = "white";
+        this.board.orientation(this.orientation);
+      }
+      this.game = new window.Chess(data.game.fen);
+      this.board.position(data.game.fen);
+    });
+
     const config = {
       draggable: true,
       showNotation: true,
@@ -49,32 +88,38 @@ export default {
       onDragStart: this.onDragStart,
       onDrop: this.onDrop,
       onSnapEnd: this.onSnapEnd
-
-      // onDragStart: this.onDragStart.bind(this),
-      // onDrop: this.onDrop.bind(this),
-      // onSnapEnd: this.onSnapEnd.bind(this)
     };
     let board;
-    console.log("board0", this.board);
-    console.log("board0000", window.ChessBoard);
-    if (window.ChessBoard !== null) {
-      board = window.ChessBoard("board", config);
-      board.orientation(this.orientation);
-    }
-    console.log("board1", board);
 
-    this.board = board;
-    console.log("board1", this.board);
-    // console.log("game2", this.game);
+    if (window.ChessBoard !== null) {
+      this.board = window.ChessBoard("board", config);
+      this.board.orientation(this.orientation);
+    }
+
+    // this.board = board;
   },
+
   methods: {
+    moveinvalid() {},
+    move() {
+      this.board.orientation(this.orientation);
+    },
+    newGame() {
+      this.socket.emit("newGame");
+    },
+    resigen() {},
+    makeMove() {},
+    register() {
+      console.log("clicked...");
+      this.socket.emit("register", { id: this.user.username, elo: this.elo });
+      this.socket.emit("playNow");
+    },
+
     onDragStart(source, piece, position, orientation) {
       // do not pick up pieces if the game is over
-
       if (this.game.game_over()) return false;
-      //(game.turn() !== playerColor[0])
-      console.log(this.game.turn(), this.orientation[0]);
-      // only pick up pieces for the side to move
+      // game.turn() !== playerColor[0];
+      //only pick up pieces for the side to move
       if (
         (this.game.turn() === "w" && piece.search(/^b/) !== -1) ||
         (this.game.turn() === "b" && piece.search(/^w/) !== -1) ||
@@ -92,6 +137,14 @@ export default {
         from: source,
         to: target,
         promotion: this.promotion //"q" // NOTE: always promote to a queen for example simplicity
+      });
+      this.socket.emit("move", {
+        gameid: "",
+        move: {
+          from: source,
+          to: target,
+          promotion: "q" // NOTE: always promote to a queen for example simplicity
+        }
       });
 
       // illegal move
@@ -150,7 +203,8 @@ export default {
       knight: "./img/chesspieces/wikipedia/wN.png",
       promotion: "q",
       clock: 1000 * 60 * 3,
-      socket: {}
+      socket: {},
+      players: []
     };
   }
 };

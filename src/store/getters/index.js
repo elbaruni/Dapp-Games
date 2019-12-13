@@ -7,7 +7,6 @@ export default {
     return state.user;
   },
   flappBirdScore(state) {
-    console.log("getter called", state.flappyBird.score);
     return state.flappyBird.score;
   },
 

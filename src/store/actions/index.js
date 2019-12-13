@@ -32,7 +32,7 @@ export default {
 
       if (notExist.length === 0) {
         _Scores[parseInt(payload.level)] = payload.score;
-        console.log("mmmm00", _Scores);
+
         const flappyBird = new FlappyBird({
           Blockstack_id: payload.Blockstack_id,
           Scores: _Scores
@@ -40,26 +40,16 @@ export default {
         flappyBird.update();
         await flappyBird.save();
       } else {
-        console.log(notExist[0].attrs.Scores);
-        console.log("mmmm01", _Scores);
         _Scores = notExist[0].attrs.Scores;
-        console.log("mmmm02", _Scores);
+
         _Scores[parseInt(payload.level)] = payload.score;
-        console.log("mmmm03", _Scores);
-        console.log(_Scores);
+
         notExist[0].update({
           Scores: _Scores
         });
         notExist[0].save();
+        commit("SetFlappyBirdScore", _Scores);
       }
-      console.log("3", notExist[0]);
-      // console.log(payload);
-
-      const flappyscore = await FlappyBird.fetchList({
-        Blockstack_id: payload.Blockstack_id
-      });
-
-      commit("SetFlappyBirdScore", flappyscore[0].attrs.Scores);
     } catch (e) {
       console.log(e.message);
     }

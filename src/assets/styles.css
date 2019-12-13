@@ -143,3 +143,28 @@ body {
 .mode {
   width: 33%;
 }
+.easy_class {
+  color: blue !important;
+  font-weight: 600;
+  font-size: 20px;
+}
+.normal_class {
+  color: blue !important;
+  font-weight: 600;
+  font-size: 20px;
+}
+.hard_class {
+  color: blue !important;
+  font-weight: 600;
+  font-size: 20px;
+}
+.turn-color {
+  height: 50px;
+  width: 50px;
+}
+.b {
+  background-color: black;
+}
+.w {
+  background-color: white;
+}

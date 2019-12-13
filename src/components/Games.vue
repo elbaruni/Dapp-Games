@@ -28,6 +28,18 @@
           </b-navbar-nav>
         </b-collapse>
       </b-navbar>
+      <b-container v-show="main" class="mt-5">
+        <b-card
+          :img-src="fb_card"
+          img-alt="Image"
+          img-top
+          tag="article"
+          style="max-width: 20rem;"
+          class="mb-2"
+        >
+          <b-button to="/games/flappybird">Flappy Bird</b-button>
+        </b-card>
+      </b-container>
     </div>
 
     <div class="mt-1">
@@ -39,8 +51,16 @@
 <script>
 import { userSession } from "../userSession";
 import { Profile } from "../utils/radiks.js";
+import fb_card from "../assets/img/fb-card.png";
 export default {
   computed: {
+    main() {
+      return this.$route.name === "games";
+    },
+    fb_card() {
+      return fb_card;
+    },
+
     user() {
       //to add computed  avatar and name
       let givenName;
@@ -72,6 +92,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.$route);
     if (this.signedIn === false) {
       this.$router.push("/");
     }
