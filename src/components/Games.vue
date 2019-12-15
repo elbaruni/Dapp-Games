@@ -2,7 +2,9 @@
   <div>
     <div>
       <b-navbar toggleable="lg" type="dark" variant="info">
-        <b-navbar-brand to="/">Dapp Games</b-navbar-brand>
+        <b-navbar-brand to="/">
+          <img :src="logo" class="brand-logo" />
+        </b-navbar-brand>
 
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -52,6 +54,7 @@
 import { userSession } from "../userSession";
 import { Profile } from "../utils/radiks.js";
 import fb_card from "../assets/img/fb-card.png";
+import logo from "../assets/img/7-01.png";
 export default {
   computed: {
     main() {
@@ -59,6 +62,9 @@ export default {
     },
     fb_card() {
       return fb_card;
+    },
+    logo() {
+      return logo;
     },
 
     user() {

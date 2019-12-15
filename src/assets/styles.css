@@ -131,10 +131,13 @@ body {
 
 .chess-board {
   width: 500px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .chess-avatar {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 5px;
 }
 .form-group {
   margin-bottom: 0.3rem !important;
@@ -167,4 +170,40 @@ body {
 }
 .w {
   background-color: white;
+}
+
+.brand-logo {
+  width: 80px;
+  height: 40px;
+}
+.card-img-top {
+  height: 300px;
+}
+.blackclock {
+  color: hsla(0, 0%, 100%, 0.65);
+  background-color: black;
+}
+
+.whiteclock {
+  color: #0f0f0f;
+  background-color: white;
+}
+
+.col-nomargin {
+  padding-left: 0;
+}
+
+.clock {
+  margin-top: 8px;
+  font-size: 3rem;
+  font-weight: 400;
+  height: 40px;
+  line-height: 30px;
+  padding: 5px 10px;
+  text-align: right;
+  width: 125px;
+}
+.player-info {
+  border-radius: 7px;
+  /* background-color: #17a2b8; */
 }

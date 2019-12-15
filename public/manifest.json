@@ -2,9 +2,11 @@
   "name": "Hello, Blockstack App",
   "start_url": "./index.html",
   "description": "A simple Hello, Blockstack app",
-  "icons": [{
-    "src": "favicon.ico",
-    "sizes": "400x400",
-    "type": "image/png"
-  }]
+  "icons": [
+    {
+      "src": "1-02.png",
+      "sizes": "400x400",
+      "type": "image/png"
+    }
+  ]
 }

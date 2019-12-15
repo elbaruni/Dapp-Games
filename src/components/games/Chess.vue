@@ -1,27 +1,36 @@
 <template>
   <div>
     <b-container>
-      <b-row>
+      <b-row class="mt-2">
         <b-col></b-col>
         <b-col>
-          <h2 class="text-white">Chess</h2>
-          <b-form-input id="input-1" v-model="orientation"></b-form-input>
-
-          <div class="clearfix mb-2 mt-2">
-            <b-img
-              left
-              class="chess-avatar"
-              :src="'https://s3.amazonaws.com/onename/avatar-placeholder.png'"
-            ></b-img>
-          </div>
-          <div class="turn-color" :class="game.turn()"></div>
-          <div id="board" class="chess-board"></div>
+          <b-container>
+            <b-row class="player-info" :class="oppent_info">
+              <b-col class="col-nomargin">
+                <b-img
+                  left
+                  class="chess-avatar"
+                  :src="'https://s3.amazonaws.com/onename/avatar-placeholder.png'"
+                ></b-img>
+              </b-col>
+              <b-col :class="oppentClock">{{oppentTimeClock}}</b-col>
+              <!-- <div class="turn-color" :class="game.turn()"></div> -->
+            </b-row>
+            <b-row>
+              <div id="board" class="chess-board"></div>
+            </b-row>
+            <b-row class="player-info" :class="player_info">
+              <b-col class="col-nomargin">
+                <b-img left class="chess-avatar" :src="user.avatar"></b-img>
+              </b-col>
+              <b-col :class="myClock">{{myTimeClock}}</b-col>
+            </b-row>
+          </b-container>
         </b-col>
         <b-col>
           <b-button @click="register">New Game</b-button>
-          <b-button @click="move">valid Move</b-button>
-          <b-button @click="moveinvalid">invalidvalid Move</b-button>
 
+          <p>{{pgn}}</p>
           <b-list-group class="mt-3">
             <b-list-group-item v-for="player in onlinePlayers" :key="player.socketID">{{player.id}}</b-list-group-item>
           </b-list-group>
@@ -50,19 +59,103 @@ export default {
         return player.id != this.user.username;
       });
     },
+
+    myTimeClock() {
+      let _time = (this.myTime - this.startingTimestamp) / 1000;
+      let minutes = parseInt(_time / 60, 10);
+      let seconds = parseInt(_time % 60, 10);
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      return `${minutes}:${seconds}`;
+    },
+    oppentTimeClock() {
+      let _time = (this.oppentTime - this.startingTimestamp) / 1000;
+      let minutes = parseInt(_time / 60, 10);
+      let seconds = parseInt(_time % 60, 10);
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      return `${minutes}:${seconds}`;
+    },
+
     position() {
       return;
     },
     user() {
       //to add computed  avatar and name
-
-      return this.$store.getters.getUser;
+      let givenName;
+      let avatar = "https://s3.amazonaws.com/onename/avatar-placeholder.png";
+      let User = { givenName, avatar };
+      if (this.signedIn) {
+        User = this.$store.getters.getUser;
+        givenName = User.name() ? User.name() : "Nameless Person";
+        if (User.avatarUrl()) avatar = User.avatarUrl();
+        User = { ...User, givenName, avatar };
+        return User;
+      }
+    },
+    signedIn() {
+      return this.$store.getters.isUserSignedIn;
     },
     elo() {
       return 1000;
-    }
+    },
+    oppent_info() {
+      switch (this.orientation) {
+        case "white":
+          return "b";
+          break;
+        case "black":
+          return "w";
+          break;
+      }
+    },
+    oppentClock() {
+      switch (this.orientation) {
+        case "white":
+          return "clock blackclock";
+          break;
+        case "black":
+          return "clock whiteclock";
+          break;
+      }
+    },
+
+    player_info() {
+      switch (this.orientation) {
+        case "white":
+          return "w";
+          break;
+        case "black":
+          return "b";
+          break;
+      }
+    },
+    myClock() {
+      switch (this.orientation) {
+        case "white":
+          return "clock whiteclock";
+          break;
+        case "black":
+          return "clock blackclock";
+          break;
+      }
+    },
+    currntplayer() {}
   },
   mounted() {
+    this.startingTimestamp = new Date().getTime();
+    this.myTime = this.startingTimestamp + this.timeLength;
+    this.oppentTime = this.startingTimestamp + this.timeLength;
+    console.log(this.startingTimestamp, this.myTime);
+    this.startMyTimeTicker();
+    this.startOppentTimeTicker();
+
+    this.socket.on("disconnect", () => {
+      console.log("disconnected");
+    });
+    console.log(this.startTime, this.whiteTime);
     this.socket.on("players", data => {
       console.log("recieved");
       this.players = data.players;
@@ -79,6 +172,7 @@ export default {
       }
       this.game = new window.Chess(data.game.fen);
       this.board.position(data.game.fen);
+      this.pgn = data.game.pgn;
     });
 
     const config = {
@@ -187,15 +281,56 @@ export default {
         }
         this.status = status;
       }
+    },
+    startMyTimeTicker() {
+      if (!this.myTimeOn) {
+        this.myTimeOn = true;
+
+        this.myTimeTicker = setInterval(() => {
+          this.myTime = this.myTime - 1000;
+
+          if (this.myTime <= this.startingTimestamp) {
+            this.stopMyTimeTicker();
+          }
+        }, 1000);
+      }
+    },
+    stopMyTimeTicker() {
+      window.clearInterval(this.myTimeTicker);
+      this.myTimeOn = false;
+    },
+    startOppentTimeTicker() {
+      if (!this.oppentTimeOn) {
+        this.oppentTimeOn = true;
+        this.oppentTimeTicker = setInterval(() => {
+          this.oppentTime = this.oppentTime - 1000;
+          if (this.oppentTime <= this.startingTimestamp) {
+            this.stopOppentTimeTicker();
+          }
+        }, 1000);
+      }
+    },
+    stopOppentTimeTicker() {
+      window.clearInterval(this.oppentTimeTicker);
+      this.oppentTimeOn = false;
     }
   },
 
   data() {
     return {
       ChessBoard: null,
+      startingTimestamp: null,
+      myTimeOn: false,
+      oppentTimeOn: false,
+      timeLength: 3 * 60 * 1000,
+      myTime: null,
+      oppentTime: null,
+      myTimeTicker: null,
+      oppentTimeTicker: null,
+
       game: null,
       board: null,
-      orientation: "black",
+      orientation: "white",
       status: "",
       queen: "./img/chesspieces/wikipedia/wQ.png",
       rook: "./img/chesspieces/wikipedia/wR.png",
@@ -204,7 +339,8 @@ export default {
       promotion: "q",
       clock: 1000 * 60 * 3,
       socket: {},
-      players: []
+      players: [],
+      pgn: ""
     };
   }
 };
