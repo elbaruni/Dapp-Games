@@ -142,15 +142,15 @@ export default {
           break;
       }
     },
-    currntplayer() {}
+    currntplayer() {
+      return this.game.turn();
+    }
   },
   mounted() {
     this.startingTimestamp = new Date().getTime();
     this.myTime = this.startingTimestamp + this.timeLength;
     this.oppentTime = this.startingTimestamp + this.timeLength;
     console.log(this.startingTimestamp, this.myTime);
-    this.startMyTimeTicker();
-    this.startOppentTimeTicker();
 
     this.socket.on("disconnect", () => {
       console.log("disconnected");
@@ -162,7 +162,7 @@ export default {
       console.log("...1", this.players);
     });
     this.socket.on("postion", data => {
-      console.log("post", data.game);
+      console.log("post", data);
       if (data.game.blackPlayer === this.user.username) {
         this.orientation = "black";
         this.board.orientation(this.orientation);
@@ -173,6 +173,16 @@ export default {
       this.game = new window.Chess(data.game.fen);
       this.board.position(data.game.fen);
       this.pgn = data.game.pgn;
+      this.gamerResult = data.game.result;
+
+      if (this.orientation[0] === this.game.turn()) {
+        console.log(this.orientation[0] === this.game.turn());
+        this.stopOppentTimeTicker();
+        this.startMyTimeTicker();
+      } else {
+        this.stopMyTimeTicker();
+        this.startOppentTimeTicker();
+      }
     });
 
     const config = {
@@ -211,7 +221,7 @@ export default {
 
     onDragStart(source, piece, position, orientation) {
       // do not pick up pieces if the game is over
-      if (this.game.game_over()) return false;
+      if (this.game.game_over() || this.gamerResult > -1) return false;
       // game.turn() !== playerColor[0];
       //only pick up pieces for the side to move
       if (
@@ -232,6 +242,9 @@ export default {
         to: target,
         promotion: this.promotion //"q" // NOTE: always promote to a queen for example simplicity
       });
+
+      // illegal move
+      if (move === null) return "snapback";
       this.socket.emit("move", {
         gameid: "",
         move: {
@@ -240,10 +253,13 @@ export default {
           promotion: "q" // NOTE: always promote to a queen for example simplicity
         }
       });
-
-      // illegal move
-      if (move === null) return "snapback";
-
+      if (this.currntplayer === this.orientation[0]) {
+        this.stopOppentTimeTicker();
+        this.startMyTimeTicker();
+      } else {
+        this.stopMyTimeTicker();
+        this.startOppentTimeTicker();
+      }
       this.updateStatus();
     },
 
@@ -290,6 +306,7 @@ export default {
           this.myTime = this.myTime - 1000;
 
           if (this.myTime <= this.startingTimestamp) {
+            this.myTime = this.startingTimestamp;
             this.stopMyTimeTicker();
           }
         }, 1000);
@@ -305,6 +322,7 @@ export default {
         this.oppentTimeTicker = setInterval(() => {
           this.oppentTime = this.oppentTime - 1000;
           if (this.oppentTime <= this.startingTimestamp) {
+            this.oppentTime = this.startingTimestamp;
             this.stopOppentTimeTicker();
           }
         }, 1000);
@@ -340,7 +358,8 @@ export default {
       clock: 1000 * 60 * 3,
       socket: {},
       players: [],
-      pgn: ""
+      pgn: "",
+      gamerResult: -1
     };
   }
 };

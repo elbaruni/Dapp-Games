@@ -40,7 +40,7 @@
         <b-col>
           <b-container fluid>
             <b-row no-gutters>
-              <b-col md="12">
+              <b-col md="6">
                 <b-list-group no-gutters>
                   <h3 aria-disabled>Best Score</h3>
                   <b-list-group-item>
@@ -165,16 +165,16 @@ export default {
     leveltext() {
       switch (parseInt(this.level)) {
         case 0:
-          return "Easy :";
+          return "Easy: ";
           break;
         case 1:
-          return "Normal :";
+          return "Normal: ";
           break;
         case 2:
-          return "Hard :";
+          return "Hard: ";
           break;
         default:
-          return "Normal :";
+          return "Normal: ";
       }
     },
     gap() {
@@ -740,12 +740,12 @@ export default {
           vm.context.font = "35px Teko";
           vm.context.fillText(
             vm.leveltext + this.value,
-            vm.canvas.width / 2 - 120,
+            5, //vm.canvas.width / 2 - 120
             50
           );
           vm.context.strokeText(
             vm.leveltext + this.value,
-            vm.canvas.width / 2 - 120,
+            5, // vm.canvas.width / 2 - 120,
             50
           );
 
