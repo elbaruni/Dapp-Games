@@ -30,7 +30,10 @@
         <b-col>
           <b-button @click="register">New Game</b-button>
 
-          <p>{{pgn}}</p>
+          <p></p>
+          <p class="text-center game-pgn">{{pgn}}</p>
+
+          <p v-show="gamerResult !==-1">{{gameResultFormatted}}</p>
           <b-list-group class="mt-3">
             <b-list-group-item v-for="player in onlinePlayers" :key="player.socketID">{{player.id}}</b-list-group-item>
           </b-list-group>
@@ -58,6 +61,23 @@ export default {
       return this.players.filter(player => {
         return player.id != this.user.username;
       });
+    },
+    gameResultFormatted() {
+      let resultFormated = "";
+
+      switch (this.gamerResult) {
+        case 0:
+          resultFormated = `${this.blackPlayer} Won the Game 0-1`;
+          break;
+        case 1:
+          resultFormated = `${this.whitePlayer} Won the Game 1-0`;
+          break;
+        case 0.5:
+          resultFormated = `Game Draw 0.5-0.5`;
+          break;
+      }
+
+      return resultFormated;
     },
 
     myTimeClock() {
@@ -155,20 +175,34 @@ export default {
     this.socket.on("disconnect", () => {
       console.log("disconnected");
     });
-    console.log(this.startTime, this.whiteTime);
+
     this.socket.on("players", data => {
       console.log("recieved");
       this.players = data.players;
       console.log("...1", this.players);
     });
+    this.socket.on("winByDisconnect", data => {
+      console.log(data, "windisconnect");
+      this.gamerResult = data.game.result;
+      this.stopOppentTimeTicker();
+
+      this.stopMyTimeTicker();
+    });
     this.socket.on("postion", data => {
       console.log("post", data);
+      this.startingTimestamp = data.game.startTimeStamp;
+      this.whitePlayer = data.game.whitePlayer;
+      this.blackPlayer = data.game.blackPlayer;
       if (data.game.blackPlayer === this.user.username) {
         this.orientation = "black";
         this.board.orientation(this.orientation);
+        this.myTime = data.game.blackTime;
+        this.oppentTime = data.game.whiteTime;
       } else {
         this.orientation = "white";
         this.board.orientation(this.orientation);
+        this.myTime = data.game.whiteTime;
+        this.oppentTime = data.game.blackTime;
       }
       this.game = new window.Chess(data.game.fen);
       this.board.position(data.game.fen);
@@ -345,6 +379,8 @@ export default {
       oppentTime: null,
       myTimeTicker: null,
       oppentTimeTicker: null,
+      whitePlayer: "",
+      blackPlayer: "",
 
       game: null,
       board: null,
