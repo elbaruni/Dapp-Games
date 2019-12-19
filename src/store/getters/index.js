@@ -12,5 +12,12 @@ export default {
 
   flappBirdScoreLevel: (state, getters) => id => {
     return state.flappyBird.score[id];
+  },
+  chessPlayer(state) {
+    return state.chess;
+  },
+
+  chessOppent: (state, getters) => {
+    return state.chessOppenet;
   }
 };

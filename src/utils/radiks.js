@@ -17,3 +17,16 @@ export class FlappyBird extends Model {
     Scores: [0, 0, 0]
   };
 }
+
+export class Chess extends Model {
+  static className = "Chess";
+  static schema = {
+    Blockstack_id: { type: String, decrypted: true },
+    Elo: { type: Number, decrypted: true },
+    BestElo: { type: Number, decrypted: true }
+  };
+  static defaults = {
+    Elo: 1200,
+    BestElo: 1200
+  };
+}

@@ -22,25 +22,43 @@
             <b-nav-item-dropdown right>
               <!-- Using 'button-content' slot -->
               <template v-slot:button-content>
-                <em>{{user.givenName}}</em>
+                <em>{{ user.givenName }}</em>
               </template>
               <!-- <b-dropdown-item href="#"></b-dropdown-item> -->
-              <b-dropdown-item @click.prevent="signOut" href="#">Sign Out</b-dropdown-item>
+              <b-dropdown-item @click.prevent="signOut" href="#"
+                >Sign Out</b-dropdown-item
+              >
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-collapse>
       </b-navbar>
       <b-container v-show="main" class="mt-5">
-        <b-card
-          :img-src="fb_card"
-          img-alt="Image"
-          img-top
-          tag="article"
-          style="max-width: 20rem;"
-          class="mb-2"
-        >
-          <b-button to="/games/flappybird">Flappy Bird</b-button>
-        </b-card>
+        <b-row>
+          <b-col>
+            <b-card
+              :img-src="fb_card"
+              img-alt="Image"
+              img-top
+              tag="article"
+              style="max-width: 20rem;"
+              class="mb-2"
+            >
+              <b-button to="/games/flappybird">Flappy Bird</b-button>
+            </b-card></b-col
+          >
+          <b-col>
+            <b-card
+              :img-src="ch_card"
+              img-alt="Image"
+              img-top
+              tag="article"
+              style="max-width: 20rem;"
+              class="mb-2"
+            >
+              <b-button to="/games/chess">Chess</b-button>
+            </b-card></b-col
+          >
+        </b-row>
       </b-container>
     </div>
 
@@ -54,6 +72,7 @@
 import { userSession } from "../userSession";
 import { Profile } from "../utils/radiks.js";
 import fb_card from "../assets/img/fb-card.png";
+import ch_card from "../assets/img/ch-card.png";
 import logo from "../assets/img/7-01.png";
 export default {
   computed: {
@@ -62,6 +81,9 @@ export default {
     },
     fb_card() {
       return fb_card;
+    },
+    ch_card() {
+      return ch_card;
     },
     logo() {
       return logo;
@@ -87,7 +109,7 @@ export default {
   methods: {
     signOut() {
       this.$store.dispatch("signOut");
-    },
+    } /* ,
     radkis1() {
       let payload = {
         name: this.$store.getters.getUser.name(),
@@ -95,10 +117,9 @@ export default {
         Gender: "male"
       };
       this.$store.dispatch("createProfile", payload);
-    }
+    } */
   },
   mounted() {
-    console.log(this.$route);
     if (this.signedIn === false) {
       this.$router.push("/");
     }

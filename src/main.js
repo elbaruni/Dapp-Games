@@ -18,9 +18,8 @@ window.axios = require("axios");
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false;
 configure({
-  apiServer: "https://sportup.gq:3050",
+  apiServer: "https://dappgames.gq:3051", // production
   userSession
-  //apiServer: "https://sportup.website:3000"
 });
 new Vue({
   router,
@@ -43,6 +42,7 @@ new Vue({
       });
 
       await this.$store.dispatch("getFlappyBirdScore", user.username);
+      await this.$store.dispatch("getChessPlayer", user.username);
     } else if (userSession.isSignInPending()) {
       //////////////
       userSession.handlePendingSignIn().then(async userData => {

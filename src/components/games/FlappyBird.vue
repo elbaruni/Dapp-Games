@@ -469,7 +469,7 @@ export default {
             if (state.current == state.game) {
               state.current = state.over;
               DIE.play();
-              console.log("game over  ", score.value);
+
               vm.setScore(score.value);
             }
           }

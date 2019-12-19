@@ -12,7 +12,12 @@ export const store = new Vuex.Store({
     user: null,
     flappyBird: {
       score: [0, 0, 0]
-    }
+    },
+    chess: {
+      Elo: 1200,
+      BestElo: 1200
+    },
+    chessOppenet: null
   },
   getters,
   mutations,

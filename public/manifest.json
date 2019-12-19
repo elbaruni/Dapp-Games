@@ -1,11 +1,11 @@
 {
-  "name": "Hello, Blockstack App",
+  "name": "Dapp Games",
   "start_url": "./index.html",
-  "description": "A simple Hello, Blockstack app",
+  "description": "A decentralized Games platform",
   "icons": [
     {
       "src": "1-02.png",
-      "sizes": "400x400",
+      "sizes": "192x192",
       "type": "image/png"
     }
   ]

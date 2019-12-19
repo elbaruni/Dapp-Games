@@ -1,6 +1,6 @@
 <template>
   <div class="panel-landing" id="section-1">
-    <h1 class="landing-heading">Hello, Blockstack!</h1>
+    <h1 class="landing-heading">Welcome to Dapp Games!</h1>
     <p class="lead">
       <a
         href="#"
@@ -15,15 +15,15 @@
 </template>
 
 <script>
-import { userSession } from '../userSession'
+import { userSession } from "../userSession";
 export default {
-  name: 'signin',
+  name: "signin",
   methods: {
-    signIn () {
-      userSession.redirectToSignIn()
+    signIn() {
+      userSession.redirectToSignIn();
     }
   }
-}
+};
 </script>
 
 <style scoped></style>

@@ -1,5 +1,6 @@
 import { userSession } from "../../userSession";
-import { Profile, FlappyBird } from "../../utils/radiks";
+import { Profile, FlappyBird, Chess } from "../../utils/radiks";
+import { Person, lookupProfile } from "blockstack";
 
 async function isexistProfile(payload) {
   const notExist = await Profile.fetchList({
@@ -50,9 +51,7 @@ export default {
         notExist[0].save();
         commit("SetFlappyBirdScore", _Scores);
       }
-    } catch (e) {
-      console.log(e.message);
-    }
+    } catch (e) {}
   },
 
   async getFlappyBirdScore({ commit }, payload) {
@@ -66,8 +65,32 @@ export default {
       }
 
       commit("SetFlappyBirdScore", _Scores);
-    } catch (e) {
-      console.log(e.message);
-    }
+    } catch (e) {}
+  },
+
+  async getChessPlayer({ commit }, payload) {
+    try {
+      const notExist = await Chess.fetchList({
+        Blockstack_id: payload
+      });
+      let Elo = 1200;
+      let BestElo = 1200;
+
+      if (notExist.length === 0) {
+        const chess = new Chess({
+          Blockstack_id: payload
+        });
+        chess.update();
+        await chess.save();
+      } else {
+        Elo = notExist[0].attrs.Elo;
+        BestElo = notExist[0].attrs.BestElo;
+      }
+
+      commit("SetChessPlayer", {
+        Elo: Elo,
+        BestElo: BestElo
+      });
+    } catch (e) {}
   }
 };
