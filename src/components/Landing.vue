@@ -7,9 +7,7 @@
         class="btn btn-primary btn-lg"
         id="signin-button"
         @click.prevent="signIn"
-      >
-        Sign In with Blockstack
-      </a>
+      >Sign In with Blockstack</a>
     </p>
   </div>
 </template>

@@ -18,7 +18,7 @@ window.axios = require("axios");
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false;
 configure({
-  apiServer: "https://dappgames.gq:3051", // production
+  apiServer: "https://dappgames.gq:3050", // production
   userSession
 });
 new Vue({

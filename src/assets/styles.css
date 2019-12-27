@@ -225,3 +225,20 @@ body {
   text-align: left;
   width: 200px;
 }
+
+.landing-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  color: white !important;
+}
+.landing-logo {
+  width: 120px;
+  height: 70px;
+  margin-top: -25px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+}

@@ -1,5 +1,5 @@
 <template>
-  <div class="center">
+  <div>
     <landing v-if="!signedIn"></landing>
     <router-view></router-view>
   </div>

@@ -23,9 +23,11 @@
               </b-col>
               <b-col :class="myinfo">{{ `${user.givenName} ` }}</b-col>
               <b-col :class="myinfo">{{ myElo }}</b-col>
-              <b-col class="float-left" :class="myClock">{{
+              <b-col class="float-left" :class="myClock">
+                {{
                 myTimeClock
-              }}</b-col>
+                }}
+              </b-col>
             </b-row>
           </b-container>
         </b-col>
@@ -40,8 +42,7 @@
             <b-list-group-item
               v-for="player in onlinePlayers"
               :key="player.socketID"
-              >{{ player.id }}</b-list-group-item
-            >
+            >{{ player.id }}</b-list-group-item>
           </b-list-group>
         </b-col>
       </b-row>
@@ -62,24 +63,35 @@ export default {
       this.game = new window.Chess();
     }
 
-    // this.socket = io("http://localhost:3000");
-    this.socket = io.connect("https://dappgames.gq:5000");
+    // this.socket = io.connect("https://dappgames.gq:5001");   // dev-
+    //this.socket = io.connect("http://localhost:5001"); // dev
+    this.socket = io.connect("https://dappgames.gq:5000"); //prod
   },
   computed: {
-    onlinePlayers() {
+    /*  onlinePlayers() {
       return this.players.filter(player => {
         return player.id != this.user.username;
       });
-    },
+    }, */
     gameResultFormatted() {
       let resultFormated = "";
 
       switch (this.gamerResult) {
         case 0:
-          resultFormated = `${this.blackPlayer} Won the Game 0-1`;
+          if (this.orientation === "black") {
+            resultFormated = `You Won the Game 0-1`;
+          } else {
+            resultFormated = `${this.blackPlayer} Won the Game 0-1`;
+          }
+
           break;
         case 1:
-          resultFormated = `${this.whitePlayer} Won the Game 1-0`;
+          if (this.orientation === "white") {
+            resultFormated = `You Won the Game 1-0`;
+          } else {
+            resultFormated = `${this.whitePlayer} Won the Game 1-0`;
+          }
+
           break;
         case 0.5:
           resultFormated = `Game Draw 0.5-0.5`;
@@ -211,6 +223,7 @@ export default {
       this.players = data.players;
     });
     this.socket.on("winByDisconnect", data => {
+      console.log("disconnect", data);
       this.gamerResult = data.game.result;
       this.stopOppentTimeTicker();
 
@@ -266,13 +279,19 @@ export default {
       this.board.position(data.game.fen);
       this.pgn = data.game.pgn;
       this.gamerResult = data.game.result;
-
-      if (this.orientation[0] === this.game.turn()) {
-        this.stopOppentTimeTicker();
-        this.startMyTimeTicker();
+      console.log(this.gamerResult);
+      if (this.gamerResult === -1) {
+        if (this.orientation[0] === this.game.turn()) {
+          this.stopOppentTimeTicker();
+          this.startMyTimeTicker();
+        } else {
+          this.stopMyTimeTicker();
+          this.startOppentTimeTicker();
+        }
       } else {
+        this.stopOppentTimeTicker();
         this.stopMyTimeTicker();
-        this.startOppentTimeTicker();
+        // add reset game
       }
     });
 
@@ -299,6 +318,7 @@ export default {
     move() {
       this.board.orientation(this.orientation);
     },
+    resetGame() {},
     newGame() {
       this.socket.emit("newGame");
     },
